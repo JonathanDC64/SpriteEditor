@@ -1,0 +1,22 @@
+{
+  "name": "sprite-editor",
+  "version": "1.0.0",
+  "description": "Simple tool to make 2d graphics",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jonathan Del Corpo",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "babel-core": "^6.26.3",
+    "electron": "^5.0.6",
+    "electron-reload": "^1.4.0"
+  },
+  "dependencies": {
+    "bootstrap": "^4.3.1"
+  }
+}
