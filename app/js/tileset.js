@@ -9,16 +9,18 @@ const Color = require('./color');
  * @property {Number} numYTiles
  * @property {Array.<Array.<Color>>} pixels
  */
-class Tileset {
+class Tileset extends EventTarget {
 
     /**
      * 
      * @param {Number} tileWidth 
      * @param {Number} tileHeight 
-     * @param {Number} numXTiles 
-     * @param {Number} numYTiles 
+     * @param {Number} pixelWidth 
+     * @param {Number} pixelHeight 
      */
-    constructor(tileWidth, tileHeight, numXTiles = 1, numYTiles = 1) {
+    constructor(tileWidth, tileHeight, pixelWidth = tileWidth, pixelHeight = tileHeight) {
+        super();
+
         /** @type {Number} */
         this._tileWidth = tileWidth;
 
@@ -26,22 +28,21 @@ class Tileset {
         this._tileHeight = tileHeight;
 
         /** @type {Number} */
-        this._numXTiles = numXTiles;
+        this._pixelWidth = pixelWidth;
 
         /** @type {Number} */
-        this._numYTiles = numYTiles;
+        this._pixelHeight = pixelHeight;
 
         /** @type {Array.<Array.<Color>>} */
         this._pixels = new Array();
+
+        this.onTileDimensionChangeEvent = new Event('onTileDimensionChangeEvent');
         
-        for (let y = 0; y < this.pixelHeight; ++y)
-        {
-            this._pixels.push(new Array());
-            for (let x = 0; x < this.pixelWidth; ++x)
-            {
-                this._pixels[y].push(new Color(255, 255, 255));
-            }
-        }
+        this.onTilesetDimensionChangeEvent = new Event('onTilesetDimensionChangeEvent');
+        
+        this.onPixelChangeEvent = new Event('onPixelChange');
+
+        this.resize(this.pixelWidth, this.pixelHeight);
     }
 
     /**
@@ -59,9 +60,9 @@ class Tileset {
         const startX = tileX * this.tileWidth;
         const endX = startX + this.tileWidth;
 
-        for(let y = startY; y < endY; ++y) {
+        for (let y = startY; y < endY; ++y) {
             tileData.push(new Array());
-            for(let x = startX; x < endX; ++x) {
+            for (let x = startX; x < endX; ++x) {
                 tileData[y][x] = this.pixels[y][x];
             }
         }
@@ -80,8 +81,52 @@ class Tileset {
     setTileData(tileX, tileY, x, y, color) {
         const startY = tileY * this.tileHeight;
         const startX = tileX * this.tileWidth;
-        
+
         this.pixels[startY + y][startX + x] = color;
+        this.dispatchEvent(this.onPixelChangeEvent);
+    }
+
+    /**
+     * 
+     * @param {Number} pixelWidth 
+     * @param {Number} pixelHeight 
+     */
+    resize(pixelWidth, pixelHeight) {
+        /** @type {Array.<Array.<Color>>} */
+        const pixelsCopy = Object.assign(this._pixels);
+        this._pixelWidth = pixelWidth;
+        this._pixelHeight = pixelHeight;
+        this._pixels = new Array();
+        for (let y = 0; y < this.pixelHeight; ++y) {
+            this._pixels.push(new Array());
+            for (let x = 0; x < this.pixelWidth; ++x) {
+                if (pixelsCopy[y] && pixelsCopy[y][x]) {
+                    const color = pixelsCopy[y][x];
+                    this._pixels[y].push(color);
+                }
+                else {
+                    this._pixels[y].push(new Color(255, 255, 255));
+                }
+            }
+        }
+        this.dispatchEvent(this.onTilesetDimensionChangeEvent);
+        this.dispatchEvent(this.onPixelChangeEvent);
+    }
+
+    addColumn() {
+        this.resize(this.pixelWidth + this.tileWidth, this.pixelHeight);
+    }
+
+    addRow() {
+        this.resize(this.pixelWidth, this.pixelHeight + this.tileHeight);
+    }
+
+    get numXTiles() {
+        return this.pixelWidth / this.tileWidth;
+    }
+
+    get numYTiles() {
+        return this.pixelHeight / this.tileHeight;
     }
 
     /**
@@ -92,10 +137,30 @@ class Tileset {
     }
 
     /**
+     * @param {Number} val
+     */
+    set tileWidth(val) {
+        if (val <= this.pixelWidth) {
+            this._tileWidth = val;
+            this.dispatchEvent(this.onTileDimensionChangeEvent);
+        }
+    }
+
+    /**
      * @returns {Number}
      */
     get tileHeight() {
         return this._tileHeight;
+    }
+
+    /**
+     * @param {Number} val
+     */
+    set tileHeight(val) {
+        if (val <= this.pixelHeight) {
+            this._tileHeight = val;
+            this.dispatchEvent(this.onTileDimensionChangeEvent);
+        }
     }
 
     /** 
@@ -103,7 +168,7 @@ class Tileset {
      * @return {Number} Width of the tileset
      */
     get pixelWidth() {
-        return this._tileWidth * this._numXTiles;
+        return this._pixelWidth;
     }
 
     /** 
@@ -111,12 +176,17 @@ class Tileset {
      * @return {Number} Width of the tileset
      */
     get pixelHeight() {
-        return this._tileWidth * this._numYTiles;
+        return this._pixelHeight;
     }
 
     /** @returns {Array.<Array.<Color>>} */
     get pixels() {
         return this._pixels;
+    }
+
+    /** @type {Number} */
+    get aspectRatio() {
+        return this.pixelWidth / this.pixelHeight;
     }
 }
 
