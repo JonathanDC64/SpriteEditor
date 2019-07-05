@@ -6,24 +6,25 @@ class TileCanvas {
 
     /**
      * 
-     * @param {HTMLCanvasElement} canvas 
-     * @param {HTMLInputElement} zoomSlider 
      * @param {Tileset} tileset
      * @param {ColorPicker} colorPicker
      */
-    constructor(canvas, zoomSlider, tileset, colorPicker) {
-        this._canvas = canvas;
+    constructor(tileset, colorPicker) {
+        this._canvas = document.getElementById('tileCanvas');
         this._canvas_ctx = this._canvas.getContext('2d');
-        this._zoomSlider = zoomSlider;
+        this._zoomSlider = document.getElementById('tileCanvasZoom');
+        this._gridButton = document.getElementById('gridButton');
+        this._clearButton = document.getElementById('clearButton');
         this._tileset = tileset;
         this._colorPicker = colorPicker;
-        this._selectedTileLocation = {x: 0, y: 0};
+        this._selectedTileLocation = { x: 0, y: 0 };
         this._isDrawingPixel = false;
+        this.showGrid = true;
 
         /** @type {Number} */
-        this._CANVAS_WIDTH = 512;
+        this._CANVAS_WIDTH = 1024;
         /** @type {Number} */
-        this._CANVAS_HEIGHT = 512;
+        this._CANVAS_HEIGHT = 1024;
 
         this._canvas.width = this._CANVAS_WIDTH;
         this._canvas.height = this._CANVAS_HEIGHT;
@@ -41,12 +42,29 @@ class TileCanvas {
         window.onmouseup = (ev) => {
             this._isDrawingPixel = false;
         };
-        
+
         this._canvas.onmousemove = (ev) => {
-            if(this._isDrawingPixel) {
+            if (this._isDrawingPixel) {
                 this.mouseHandler(ev);
             }
         };
+
+        this._gridButton.onclick = (ev) => {
+            this.showGrid = !this.showGrid;
+            this.drawAll();
+        };
+
+        this._clearButton.onclick = (ev) => {
+            this.clearTile();
+        };
+
+        this._tileset.addEventListener('onTileDimensionChangeEvent', (ev) => {
+            this.drawAll();
+        }, false);
+
+        this._tileset.addEventListener('onPixelChange', (ev) => {
+            this.drawAll();
+        }, false);
 
         this._canvas.on
 
@@ -104,16 +122,51 @@ class TileCanvas {
         console.log(`Set pixel on tile [${tileX},${tileY}] on pixel [${x},${y}] with color ${color.RGB}`);
     }
 
+    set showGrid(val) {
+        this._showGrid = val;
+        if (val) {
+            this._gridButton.classList.remove('btn-light');
+            this._gridButton.classList.add('btn-primary');
+        }
+        else {
+            this._gridButton.classList.remove('btn-primary');
+            this._gridButton.classList.add('btn-light');
+        }
+    }
+
+    get showGrid() {
+        return this._showGrid;
+    }
+
     zoom() {
-        this._canvas.style.setProperty('height', `${this._zoomSlider.value}%`, 'important'); 
+        this._canvas.style.setProperty('width', `${this._zoomSlider.value}%`, 'important');
     }
 
     drawAll() {
-        this.draw();
-        this.drawGrid();
+        this.clearCanvas();
+        this.drawTile();
+        if (this.showGrid) {
+            this.drawGrid();
+        }
     }
 
-    draw() {
+    clearCanvas() {
+        const ctx = this._canvas_ctx;
+        ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+    }
+
+    clearTile() {
+        const tileX = this._selectedTileLocation.x;
+        const tileY = this._selectedTileLocation.y;
+
+        for (let y = 0; y < this._tileset.tileWidth; ++y) {
+            for (let x = 0; x < this._tileset.tileHeight; ++x) {
+                this._tileset.setTileData(tileX, tileY, x, y, Color.fromRGB('#FFFFFF'))
+            }
+        }
+    }
+
+    drawTile() {
         const tileset = this._tileset;
         const yStep = this.yStep;
         const xStep = this.xStep;
@@ -125,8 +178,8 @@ class TileCanvas {
 
         const ctx = this._canvas_ctx;
 
-        for(let y = 0; y < tileset.pixelHeight; y++) {
-            for(let x = 0; x < tileset.pixelWidth; x++) {
+        for (let y = 0; y < tileset.tileHeight; y++) {
+            for (let x = 0; x < tileset.tileWidth; x++) {
                 const color = tile[y][x];
                 const RGB = color.RGB;
 
@@ -140,8 +193,8 @@ class TileCanvas {
         const ctx = this._canvas_ctx;
         const yStep = this.yStep;
         const xStep = this.xStep;
-        
-        for(let y = yStep; y < this._canvas.height ; y += yStep) {
+
+        for (let y = yStep; y < this._canvas.height; y += yStep) {
             ctx.strokeStyle = 'rgb(0,0,0)';
             ctx.lineWidth = 1;
             ctx.beginPath();
@@ -151,7 +204,7 @@ class TileCanvas {
             ctx.stroke();
         }
 
-        for(let x = xStep; x < this._canvas.width; x += xStep) {
+        for (let x = xStep; x < this._canvas.width; x += xStep) {
             ctx.strokeStyle = 'rgb(0,0,0)';
             ctx.lineWidth = 1;
             ctx.beginPath();
