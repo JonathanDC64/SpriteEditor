@@ -3,11 +3,10 @@ class ColorPicker {
 
     /**
      * 
-     * @param {HTMLTemplateElement} baseTemplate 
-     * @param {HTMLElement} baseContainer 
      */
-    constructor(baseTemplate, baseContainer) {
-        this._baseTemplate = baseTemplate;
+    constructor() {
+        this._baseTemplate = document.getElementById('colorPicker');
+        this._baseContainer = document.getElementById('colorPickerContainer');
         this._primaryColors = [
             '#0000FF', '#FF0000', '#FFFF00', '#FF6600',
             '#00FF00', '#6600FF', '#000000', '#FFFFFF',
@@ -35,7 +34,7 @@ class ColorPicker {
                 console.log(`Selected color = ${this.selectedColor}`);
             };
 
-            baseContainer.appendChild(copy);
+            this._baseContainer.appendChild(copy);
         }
 
         this._setSelectedColor(0);
