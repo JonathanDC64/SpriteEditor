@@ -2,6 +2,15 @@
     user-select: none;
 }
 
+body {
+    overflow: hidden;
+}
+
+.scrollable {
+    height: 100vh;
+    overflow-y: scroll;
+}
+
 /* Displays range slider vertically */
 input[type=range][orient=vertical]
 {
