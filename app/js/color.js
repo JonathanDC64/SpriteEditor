@@ -42,9 +42,10 @@ class Color {
         return `#${redHex}${greenHex}${blueHex}`;
     }
 
-    get RGBA() {
-        const alphaHex = this.alpha.toString(16);
-        return `#${this.RGB.replace('#', '')}${alphaHex}`;
+    get RGBA() {   
+        //const alphaHex = this.alpha.toString(16);
+        //return `#${this.RGB.replace('#', '')}${alphaHex}`;
+        return `rgba(${this.red},${this.green},${this.blue},${this.alpha / 255})`;
     }
 
 
