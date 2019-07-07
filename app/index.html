@@ -16,14 +16,14 @@
         <div class="row mt-4">
 
             <!-- Tile Drawing Canvas Column -->
-            <div class="col-7">
+            <div class="col-8">
                 <div class="row">
                     <div class="col">
                         <div class="btn btn-group">
                             <button id="gridButton" class="btn" data-toggle="tooltip" data-placement="top"
                                 title="Toggle Grid">🏁</button>
                             <button id="clearButton" class="btn btn-light" data-toggle="tooltip" data-placement="top"
-                                title="Clear Grid">❌</button>
+                                title="Clear Grid">🗑️</button>
                         </div>
 
                     </div>
@@ -37,14 +37,14 @@
                                 min="30" max="100" value="70">
                         </div>
                     </div>
-                    <div class="col" style="text-align: center">
+                    <div class="col scrollable" style="text-align: center">
                         <canvas id="tileCanvas" class="border border-dark"></canvas>
                     </div>
                 </div>
             </div>
 
             <!-- Color Picker Columm -->
-            <div class="col-2">
+            <div class="col-1">
                 <div id="colorPickerContainer"></div>
                 <template id="colorPicker">
                     <div class="row">
@@ -62,7 +62,7 @@
             </div>
 
             <!-- Settings Column -->
-            <div class="col-3">
+            <div class="col-3 scrollable">
 
                 <div class="row">
                     <div class="col-6">
@@ -111,8 +111,8 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="form-group">
-                            <label for="exampleFormControlFile1">Select tileset file</label>
-                            <input type="file" class="form-control-file" id="exampleFormControlFile1">
+                            <label for="selectTileset">Select tileset file</label>
+                            <input type="file" class="form-control-file" id="selectTileset">
                         </div>
                     </div>
                 </div>
