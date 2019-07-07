@@ -1,4 +1,5 @@
 const Tileset = require("./tileset");
+const TilesetCanvas = require("./tileset_canvas");
 const ColorPicker = require("./color_picker");
 const Color = require('./color');
 
@@ -8,8 +9,9 @@ class TileCanvas {
      * 
      * @param {Tileset} tileset
      * @param {ColorPicker} colorPicker
+     * @param {tilesetCanvas} tilesetCanvas
      */
-    constructor(tileset, colorPicker) {
+    constructor(tileset, colorPicker, tilesetCanvas) {
         this._canvas = document.getElementById('tileCanvas');
         this._canvas_ctx = this._canvas.getContext('2d');
         this._zoomSlider = document.getElementById('tileCanvasZoom');
@@ -17,7 +19,8 @@ class TileCanvas {
         this._clearButton = document.getElementById('clearButton');
         this._tileset = tileset;
         this._colorPicker = colorPicker;
-        this._selectedTileLocation = { x: 0, y: 0 };
+        this._tilesetCanvas = tilesetCanvas;
+        
         this._isDrawingPixel = false;
         this.showGrid = true;
 
@@ -63,6 +66,10 @@ class TileCanvas {
         }, false);
 
         this._tileset.addEventListener('onPixelChange', (ev) => {
+            this.drawAll();
+        }, false);
+
+        this._tileset.addEventListener('onSelectedTileLocationChange', (ev) => {
             this.drawAll();
         }, false);
 
@@ -114,8 +121,8 @@ class TileCanvas {
     }
 
     setPixel(x, y) {
-        const tileX = this._selectedTileLocation.x;
-        const tileY = this._selectedTileLocation.y;
+        const tileX = this._tileset.selectedTileLocation.x;
+        const tileY = this._tileset.selectedTileLocation.y;
         const color = Color.fromRGB(this._colorPicker.selectedColor);
         this._tileset.setTileData(tileX, tileY, x, y, color);
 
@@ -156,8 +163,8 @@ class TileCanvas {
     }
 
     clearTile() {
-        const tileX = this._selectedTileLocation.x;
-        const tileY = this._selectedTileLocation.y;
+        const tileX = this._tileset.selectedTileLocation.x;
+        const tileY = this._tileset.selectedTileLocation.y;
 
         for (let y = 0; y < this._tileset.tileWidth; ++y) {
             for (let x = 0; x < this._tileset.tileHeight; ++x) {
@@ -171,8 +178,8 @@ class TileCanvas {
         const yStep = this.yStep;
         const xStep = this.xStep;
 
-        const tileX = this._selectedTileLocation.x;
-        const tileY = this._selectedTileLocation.y;
+        const tileX = this._tileset.selectedTileLocation.x;
+        const tileY = this._tileset.selectedTileLocation.y;
 
         const tile = tileset.getTileData(tileX, tileY);
 
@@ -181,7 +188,7 @@ class TileCanvas {
         for (let y = 0; y < tileset.tileHeight; y++) {
             for (let x = 0; x < tileset.tileWidth; x++) {
                 const color = tile[y][x];
-                const RGB = color.RGB;
+                const RGB = color.RGBA;
 
                 ctx.fillStyle = RGB;
                 ctx.fillRect(x * xStep, y * yStep, xStep, yStep);
