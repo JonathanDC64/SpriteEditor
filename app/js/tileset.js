@@ -36,11 +36,15 @@ class Tileset extends EventTarget {
         /** @type {Array.<Array.<Color>>} */
         this._pixels = new Array();
 
+        this._selectedTileLocation = { x: 0, y: 0 };
+
         this.onTileDimensionChangeEvent = new Event('onTileDimensionChangeEvent');
-        
+
         this.onTilesetDimensionChangeEvent = new Event('onTilesetDimensionChangeEvent');
-        
+
         this.onPixelChangeEvent = new Event('onPixelChange');
+
+        this.onSelectedTileLocationChange = new Event('onSelectedTileLocationChange');
 
         this.resize(this.pixelWidth, this.pixelHeight);
     }
@@ -63,7 +67,7 @@ class Tileset extends EventTarget {
         for (let y = startY; y < endY; ++y) {
             tileData.push(new Array());
             for (let x = startX; x < endX; ++x) {
-                tileData[y][x] = this.pixels[y][x];
+                tileData[y - startY][x - startX] = this.pixels[y][x];
             }
         }
 
@@ -105,10 +109,18 @@ class Tileset extends EventTarget {
                     this._pixels[y].push(color);
                 }
                 else {
-                    this._pixels[y].push(new Color(255, 255, 255));
+                    this._pixels[y].push(new Color(255, 255, 255, 0));
                 }
             }
         }
+
+        const selectedTileLocation = this._selectedTileLocation;
+
+        if (selectedTileLocation.x > this.numXTiles || selectedTileLocation.y > this.numYTiles) {
+            this.selectedTileLocationX = 0;
+            this.selectedTileLocationY = 0;
+        }
+
         this.dispatchEvent(this.onTilesetDimensionChangeEvent);
         this.dispatchEvent(this.onPixelChangeEvent);
     }
@@ -117,8 +129,16 @@ class Tileset extends EventTarget {
         this.resize(this.pixelWidth + this.tileWidth, this.pixelHeight);
     }
 
+    removeColumn() {
+        this.resize(this.pixelWidth - this.tileWidth, this.pixelHeight);
+    }
+
     addRow() {
         this.resize(this.pixelWidth, this.pixelHeight + this.tileHeight);
+    }
+
+    removeRow() {
+        this.resize(this.pixelWidth, this.pixelHeight - this.tileHeight);
     }
 
     get numXTiles() {
@@ -184,9 +204,30 @@ class Tileset extends EventTarget {
         return this._pixels;
     }
 
-    /** @type {Number} */
+    /** @returns {Number} */
     get aspectRatio() {
         return this.pixelWidth / this.pixelHeight;
+    }
+
+    /** @returns {Object} */
+    get selectedTileLocation() {
+        return this._selectedTileLocation;
+    }
+
+    /**
+     * @type {Number} val
+     */
+    set selectedTileLocationX(val) {
+        this._selectedTileLocation.x = val;
+        this.dispatchEvent(this.onSelectedTileLocationChange);
+    }
+
+    /**
+     * @type {Number} val
+     */
+    set selectedTileLocationY(val) {
+        this._selectedTileLocation.y = val;
+        this.dispatchEvent(this.onSelectedTileLocationChange);
     }
 }
 
