@@ -15,12 +15,30 @@ class UpDownInput extends EventTarget {
         this._minusClickedEvent = new Event('onMinusClicked');
 
         this._plusButton.onclick = (ev) => {
+            this.inc();
             this.dispatchEvent(this._plusClickedEvent);
         };
 
         this._minusButton.onclick = (ev) => {
+            this.dec();
             this.dispatchEvent(this._minusClickedEvent);
         };
+    }
+
+    inc() {
+        this.value = this.value + 1;
+    }
+
+    dec() {
+        this.value = this.value - 1;
+    }
+
+    get value() {
+        return Number(this._inputBox.value);
+    }
+
+    set value(val) {
+        this._inputBox.value = val;
     }
 }
 
@@ -48,6 +66,9 @@ class TilesetConfiguration {
         /** @type {HTMLButtonElement} */
         this._saveTilesetButton = document.getElementById("saveTileset");
 
+        /** @type {HTMLInputElement} */
+        this._selectTilesetInput = document.getElementById("selectTileset");
+
         this._saveTilesetButton.onclick = (ev) => {
             this.savePNG();
         };
@@ -60,6 +81,9 @@ class TilesetConfiguration {
             this.updateTileHeight();
         };
 
+        this._saveTilesetButton.on
+        
+
         this._columnsInput = new UpDownInput(document.getElementById("columnsInput"));
         this._rowsInput = new UpDownInput(document.getElementById("rowsInput"));
         
@@ -69,6 +93,14 @@ class TilesetConfiguration {
 
         this._rowsInput.addEventListener('onPlusClicked', (ev) => {
             this._tileset.addRow();
+        }, false);
+
+        this._columnsInput.addEventListener('onMinusClicked', (ev) => {
+            this._tileset.removeColumn();
+        }, false);
+
+        this._rowsInput.addEventListener('onMinusClicked', (ev) => {
+            this._tileset.removeRow();
         }, false);
 
         this.updateTileWidth();
@@ -102,7 +134,7 @@ class TilesetConfiguration {
         for (let y = 0; y < this._tileset.pixelHeight; ++y) {
             for (let x = 0; x < this._tileset.pixelWidth; ++x) {
                 const color = this._tileset.pixels[y][x];
-                ctx.fillStyle = color.RGB;
+                ctx.fillStyle = color.RGBA;
                 ctx.fillRect(x, y, 1, 1);
             }
         }
