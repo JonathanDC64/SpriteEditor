@@ -17,13 +17,13 @@ class SpriteEditor {
         /** @type {ColorPicker} */
         this.colorPicker = new ColorPicker();
 
-        /** @type {TileCanvas} */
-        this.tileCanvas = new TileCanvas(this.tileset, this.colorPicker);
-        console.log('Tile Canvas Initialized');
-
         /** @type {TilesetCanvas} */
         this.tilesetCanvas = new TilesetCanvas(this.tileset);
         console.log('Tileset Canvas Initialized');
+
+        /** @type {TileCanvas} */
+        this.tileCanvas = new TileCanvas(this.tileset, this.colorPicker, this.tilesetCanvas);
+        console.log('Tile Canvas Initialized');
 
         this.tilesetConfiguration = new TilesetConfiguration(this.tileset);
         console.log('Tileset Configurator Initialized');
